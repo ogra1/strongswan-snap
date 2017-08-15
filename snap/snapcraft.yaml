@@ -1,0 +1,65 @@
+name: strongswan
+version: '0.1' # fallback version
+version-script: |
+    wget -q -O- https://download.strongswan.org/| \
+    html2text|grep "strongswan-[0-9].[0-9].[0-9].tar.gz "| \
+    cut -d ' ' -f2|tail -1|sed 's/strongswan-//;s/.tar.gz//'
+summary: Strongswan openvpn client
+description: |
+  Initial snap for strongswan
+
+grade: stable
+confinement: devmode # use 'strict' once you have the right plugs and slots
+
+apps:
+  strongswan:
+    command: bin/ipsec-wrapper.sh start --nofork
+    daemon: simple
+  swanctl:
+    command: bin/swanctl-wrapper.sh
+  ipsec:
+    command: bin/ipsec-wrapper.sh
+  pki:
+    command: bin/pki-wrapper.sh
+
+parts:
+  build-strongswan:
+    plugin: make
+    source: https://download.strongswan.org/strongswan.tar.gz
+    prepare: |
+      sed -i 's/IPSEC_DIR=.*$/IPSEC_DIR=\"$SNAP\/usr\/libexec\/ipsec\"/' src/ipsec/_ipsec.in
+      sed -i 's/IPSEC_CONFDIR=.*$/IPSEC_CONFDIR=\"$SNAP_DATA\/etc\"/' src/ipsec/_ipsec.in
+      sed -i 's/IPSEC_PIDDIR=.*$/IPSEC_PIDDIR=\"$SNAP_DATA\/var\/run\"/' src/ipsec/_ipsec.in
+      sed -i 's/IPSEC_DIR \"/\"\/snap\/strongswan\/current\/usr\/libexec\/ipsec/' src/starter/starter.c
+      sed -i 's/IPSEC_PIDDIR \"/\"\/var\/snap\/strongswan\/current\/var\/run/' src/starter/starter.c
+      sed -i 's/IPSEC_DIR\"/\"\/snap\/strongswan\/current\/usr\/libexec\/ipsec/' src/starter/starter.c
+      sed -i 's/IPSEC_PIDDIR\"/\"\/var\/snap\/strongswan\/current\/var\/run/' src/starter/starter.c
+      ./configure \
+      --enable-openssl \
+      --prefix=/usr \
+      --sysconfdir=/var/snap/strongswan/current/etc \
+      --with-plugindir=/snap/strongswan/current/usr/lib/ipsec/plugins \
+      --with-piddir=/var/snap/strongswan/current/var/run \
+      --runstatedir=/var/snap/strongswan/current/var/run
+    install: |
+      mv $SNAPCRAFT_PART_INSTALL/snap/strongswan/current/usr/lib/ipsec/plugins \
+          $SNAPCRAFT_PART_INSTALL/usr/lib/ipsec/
+      rm -rf $SNAPCRAFT_PART_INSTALL/snap/strongswan
+      cp -a $SNAPCRAFT_PART_INSTALL/var/snap/strongswan/current/etc/* $SNAPCRAFT_PART_INSTALL/etc/
+      rm -rf $SNAPCRAFT_PART_INSTALL/var
+#      ./libtool --finish $SNAPCRAFT_PART_INSTALL/usr/lib/ipsec/plugins
+#      ./libtool --finish $SNAPCRAFT_PART_INSTALL/usr/lib/ipsec
+    build-packages:
+      - build-essential
+      - opensc
+      - libgmp-dev
+      - libssl-dev
+      - html2text
+      - wget
+    stage-packages:
+      - libgmp10
+      - opensc
+  wrappers:
+    plugin: dump
+    organize:
+      wrappers: bin/
