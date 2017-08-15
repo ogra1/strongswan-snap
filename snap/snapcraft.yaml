@@ -30,22 +30,22 @@ parts:
       sed -i 's/IPSEC_DIR=.*$/IPSEC_DIR=\"$SNAP\/usr\/libexec\/ipsec\"/' src/ipsec/_ipsec.in
       sed -i 's/IPSEC_CONFDIR=.*$/IPSEC_CONFDIR=\"$SNAP_DATA\/etc\"/' src/ipsec/_ipsec.in
       sed -i 's/IPSEC_PIDDIR=.*$/IPSEC_PIDDIR=\"$SNAP_DATA\/var\/run\"/' src/ipsec/_ipsec.in
-      sed -i 's/IPSEC_DIR \"/\"\/snap\/strongswan\/current\/usr\/libexec\/ipsec/' src/starter/starter.c
-      sed -i 's/IPSEC_PIDDIR \"/\"\/var\/snap\/strongswan\/current\/var\/run/' src/starter/starter.c
-      sed -i 's/IPSEC_DIR\"/\"\/snap\/strongswan\/current\/usr\/libexec\/ipsec/' src/starter/starter.c
-      sed -i 's/IPSEC_PIDDIR\"/\"\/var\/snap\/strongswan\/current\/var\/run/' src/starter/starter.c
+      sed -i 's/IPSEC_DIR \"/\"\/snap\/strongswan-ogra\/current\/usr\/libexec\/ipsec/' src/starter/starter.c
+      sed -i 's/IPSEC_PIDDIR \"/\"\/var\/snap\/strongswan-ogra\/current\/var\/run/' src/starter/starter.c
+      sed -i 's/IPSEC_DIR\"/\"\/snap\/strongswan-ogra\/current\/usr\/libexec\/ipsec/' src/starter/starter.c
+      sed -i 's/IPSEC_PIDDIR\"/\"\/var\/snap\/strongswan-ogra\/current\/var\/run/' src/starter/starter.c
       ./configure \
       --enable-openssl \
       --prefix=/usr \
-      --sysconfdir=/var/snap/strongswan/current/etc \
-      --with-plugindir=/snap/strongswan/current/usr/lib/ipsec/plugins \
-      --with-piddir=/var/snap/strongswan/current/var/run \
-      --runstatedir=/var/snap/strongswan/current/var/run
+      --sysconfdir=/var/snap/strongswan-ogra/current/etc \
+      --with-plugindir=/snap/strongswan-ogra/current/usr/lib/ipsec/plugins \
+      --with-piddir=/var/snap/strongswan-ogra/current/var/run \
+      --runstatedir=/var/snap/strongswan-ogra/current/var/run
     install: |
-      mv $SNAPCRAFT_PART_INSTALL/snap/strongswan/current/usr/lib/ipsec/plugins \
+      mv $SNAPCRAFT_PART_INSTALL/snap/strongswan-ogra/current/usr/lib/ipsec/plugins \
           $SNAPCRAFT_PART_INSTALL/usr/lib/ipsec/
-      rm -rf $SNAPCRAFT_PART_INSTALL/snap/strongswan
-      cp -a $SNAPCRAFT_PART_INSTALL/var/snap/strongswan/current/etc/* $SNAPCRAFT_PART_INSTALL/etc/
+      rm -rf $SNAPCRAFT_PART_INSTALL/snap/strongswan-ogra
+      cp -a $SNAPCRAFT_PART_INSTALL/var/snap/strongswan-ogra/current/etc/* $SNAPCRAFT_PART_INSTALL/etc/
       rm -rf $SNAPCRAFT_PART_INSTALL/var
     build-packages:
       - build-essential
