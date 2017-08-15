@@ -1,4 +1,4 @@
-name: strongswan
+name: strongswan-ogra
 version: '0.1' # fallback version
 version-script: |
     wget -q -O- https://download.strongswan.org/| \
