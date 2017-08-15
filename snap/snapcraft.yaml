@@ -4,7 +4,7 @@ version-script: |
     wget -q -O- https://download.strongswan.org/| \
     html2text|grep "strongswan-[0-9].[0-9].[0-9].tar.gz "| \
     cut -d ' ' -f2|tail -1|sed 's/strongswan-//;s/.tar.gz//'
-summary: Strongswan openvpn client
+summary: Strongswan ipsec/vpn client
 description: |
   Initial snap for strongswan
 
@@ -47,8 +47,6 @@ parts:
       rm -rf $SNAPCRAFT_PART_INSTALL/snap/strongswan
       cp -a $SNAPCRAFT_PART_INSTALL/var/snap/strongswan/current/etc/* $SNAPCRAFT_PART_INSTALL/etc/
       rm -rf $SNAPCRAFT_PART_INSTALL/var
-#      ./libtool --finish $SNAPCRAFT_PART_INSTALL/usr/lib/ipsec/plugins
-#      ./libtool --finish $SNAPCRAFT_PART_INSTALL/usr/lib/ipsec
     build-packages:
       - build-essential
       - opensc
