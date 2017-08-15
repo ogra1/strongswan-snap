@@ -10,7 +10,7 @@ To install the snap from the store use:
 snap install --devmode --edge strongswan-ogra
 
 Configuration lives in /var/snap/strongswan-ogra/current/etc
-The charon service should automatically start after install and can e controlled with systemctl as:
+The charon service should automatically start after install and can be controlled with systemctl as:
 
 `snap.strongswan-ogra.strongswan.service`
 
