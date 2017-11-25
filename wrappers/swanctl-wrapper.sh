@@ -9,6 +9,6 @@ if [ "$(id -u)" != "0" ]; then
     exit 1
 fi
 
-[ -d /var/snap/strongswan/current/etc ] || cp -a $SNAP/var/snap/strongswan/current/etc $SNAP_DATA/
+[ -d /var/snap/strongswan-ogra/current/etc ] || cp -a $SNAP/var/snap/strongswan-ogra/current/etc $SNAP_DATA/
 
 $SNAP/usr/sbin/swanctl "$@"
