@@ -28,6 +28,8 @@ parts:
     source: https://download.strongswan.org/strongswan.tar.gz
     prepare: |
       sed -i 's/IPSEC_DIR=.*$/IPSEC_DIR=\"$SNAP\/usr\/libexec\/ipsec\"/' src/ipsec/_ipsec.in
+      sed -i 's/IPSEC_BINDIR=.*$/IPSEC_BINDIR=\"$SNAP\/usr\/bin\"/' src/ipsec/_ipsec.in
+      sed -i 's/IPSEC_SBINDIR=.*$/IPSEC_SBINDIR=\"$SNAP\/usr\/sbin\"/' src/ipsec/_ipsec.in
       sed -i 's/IPSEC_CONFDIR=.*$/IPSEC_CONFDIR=\"$SNAP_DATA\/etc\"/' src/ipsec/_ipsec.in
       sed -i 's/IPSEC_PIDDIR=.*$/IPSEC_PIDDIR=\"$SNAP_DATA\/var\/run\"/' src/ipsec/_ipsec.in
       sed -i 's/IPSEC_DIR \"/\"\/snap\/strongswan-ogra\/current\/usr\/libexec\/ipsec/' src/starter/starter.c
