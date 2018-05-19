@@ -1,3 +1,5 @@
+[![Snap Status](https://build.snapcraft.io/badge/ogra1/strongswan-snap.svg)](https://build.snapcraft.io/user/ogra1/strongswan-snap)
+
 # strongswan Snap Package
 
 This is an initial (and still rather hackish) attempt to create a strongswan Snap package.
