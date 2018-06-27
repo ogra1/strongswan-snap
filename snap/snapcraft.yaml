@@ -1,5 +1,5 @@
 name: strongswan-ogra
-version: '0.1' # fallback version
+version: '0.1-1' # fallback version
 version-script: |
     wget -q -O- https://download.strongswan.org/| \
     html2text|grep "strongswan-[0-9].[0-9].[0-9].tar.gz "| \
