@@ -1,0 +1,79 @@
+diff --git a/src/ipsec/_ipsec.in b/src/ipsec/_ipsec.in
+index c1de833fb..39124e717 100644
+--- a/src/ipsec/_ipsec.in
++++ b/src/ipsec/_ipsec.in
+@@ -27,11 +27,11 @@ IPSEC_NAME="@IPSEC_NAME@"
+ IPSEC_VERSION="U@IPSEC_VERSION@/K`uname -r`"
+ 
+ # where the private directory and the config files are
+-IPSEC_DIR="@IPSEC_DIR@"
+-IPSEC_BINDIR="@IPSEC_BINDIR@"
+-IPSEC_SBINDIR="@IPSEC_SBINDIR@"
++IPSEC_DIR="$SNAP/usr/libexec/ipsec"
++IPSEC_BINDIR="$SNAP/usr/bin"
++IPSEC_SBINDIR="$SNAP/usr/sbin"
+ IPSEC_CONFDIR="@IPSEC_CONFDIR@"
+-IPSEC_PIDDIR="@IPSEC_PIDDIR@"
++IPSEC_PIDDIR="/tmp"
+ IPSEC_SCRIPT="@IPSEC_SCRIPT@"
+ 
+ IPSEC_STARTER_PID="${IPSEC_PIDDIR}/starter.${DAEMON_NAME}.pid"
+@@ -211,8 +211,8 @@ secrets)
+ 	;;
+ start)
+ 	shift
+-	if [ -d /var/lock/subsys ]; then
+-		touch /var/lock/subsys/ipsec
++	if [ -d /tmp/ipsec.lock ]; then
++		touch /tmp/ipsec.lock
+ 	fi
+ 	exec $IPSEC_STARTER --daemon $DAEMON_NAME "$@"
+ 	;;
+@@ -220,8 +220,8 @@ status|statusall)
+ 	op="$1"
+ 	# Return value is slightly different for the status command:
+ 	# 0 - service up and running
+-	# 1 - service dead, but /var/run/  pid  file exists
+-	# 2 - service dead, but /var/lock/ lock file exists
++	# 1 - service dead, but /tmp  pid  file exists
++	# 2 - service dead, but /tmp lock file exists
+ 	# 3 - service not running (unused)
+ 	# 4 - service status unknown :-(
+ 	# 5--199 reserved (5--99 LSB, 100--149 distro, 150--199 appl.)
+@@ -274,8 +274,8 @@ stop)
+ 	else
+ 		echo "Stopping strongSwan IPsec failed: starter is not running" >&2
+ 	fi
+-	if [ -d /var/lock/subsys ]; then
+-		rm -f /var/lock/subsys/ipsec
++	if [ -d /tmp/ipsec.lock ]; then
++		rm -f /tmp/ipsec.lock
+ 	fi
+ 	exit 0
+ 	;;
+diff --git a/src/starter/starter.c b/src/starter/starter.c
+index 506fe47e2..343e183c9 100644
+--- a/src/starter/starter.c
++++ b/src/starter/starter.c
+@@ -49,9 +49,9 @@
+ 
+ #define CHARON_RESTART_DELAY 5
+ 
+-static const char* cmd_default = IPSEC_DIR "/charon";
+-static const char* pid_file_default = IPSEC_PIDDIR "/charon.pid";
+-static const char* starter_pid_file_default = IPSEC_PIDDIR "/starter.pid";
++static const char* cmd_default = "/snap/strongswan-ogra/current/usr/libexec/ipsec/charon";
++static const char* pid_file_default = "/tmp/charon.pid";
++static const char* starter_pid_file_default = "/tmp/starter.pid";
+ 
+ char *daemon_name = NULL;
+ char *cmd = NULL;
+@@ -293,7 +293,7 @@ static bool set_daemon_name()
+ 		daemon_name = "charon";
+ 	}
+ 
+-	if (asprintf(&cmd, IPSEC_DIR"/%s", daemon_name) < 0)
++	if (asprintf(&cmd, "/snap/strongswan-ogra/current/usr/libexec/ipsec/%s", daemon_name) < 0)
+ 	{
+ 		 cmd = (char*)cmd_default;
+ 	}

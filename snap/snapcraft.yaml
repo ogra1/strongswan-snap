@@ -1,65 +1,135 @@
 name: strongswan-ogra
-version: '0.1-1' # fallback version
-version-script: |
-    wget -q -O- https://download.strongswan.org/| \
-    html2text|grep "strongswan-[0-9].[0-9].[0-9].tar.gz "| \
-    cut -d ' ' -f2|tail -1|sed 's/strongswan-//;s/.tar.gz//'
-summary: Strongswan ipsec/vpn client
+adopt-info: strongswan
+base: core18
+summary: Strongswan ipsec/vpn
 description: |
-  Initial snap for strongswan
+  A snap package for strongswan
+  .
+  For full operation please run
+  sudo snap connect strongswan-ogra:network-control
+  after install.
+  .
+  All strongswan configuration can be found under
+  /var/snap/strongswan-ogra/current/etc
+  For a quickstart guide see the README.md at
+  https://github.com/strongswan/strongswan
+  .
+  This snap ships the swanctl, ipsec and pki binaries, all
+  plugins and starts a strongswan daemon by default.
 
 grade: stable
-confinement: devmode # use 'strict' once you have the right plugs and slots
+confinement: strict
 
 apps:
   strongswan:
-    command: bin/ipsec-wrapper.sh start --nofork
+    command: usr/sbin/ipsec start --nofork
     daemon: simple
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/ipsec/plugins:$SNAP/usr/lib/ipsec:$LD_LIBRARY_PATH
+    plugs:
+      - network
+      - network-bind
+      - network-control
   swanctl:
-    command: bin/swanctl-wrapper.sh
+    command: usr/sbin/swanctl
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/ipsec/plugins:$SNAP/usr/lib/ipsec:$LD_LIBRARY_PATH
+    plugs:
+      - home
+      - network
+      - network-bind
+      - network-control
   ipsec:
-    command: bin/ipsec-wrapper.sh
+    command: usr/sbin/ipsec
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/ipsec/plugins:$SNAP/usr/lib/ipsec:$LD_LIBRARY_PATH
+    plugs:
+      - home
+      - network
+      - network-bind
+      - network-control
   pki:
-    command: bin/pki-wrapper.sh
+    command: usr/bin/pki
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/ipsec/plugins:$SNAP/usr/lib/ipsec:$LD_LIBRARY_PATH
+    plugs:
+      - home
+      - network
+      - network-bind
 
 parts:
-  build-strongswan:
-    plugin: make
-    source: https://download.strongswan.org/strongswan.tar.gz
-    prepare: |
-      sed -i 's/IPSEC_DIR=.*$/IPSEC_DIR=\"$SNAP\/usr\/libexec\/ipsec\"/' src/ipsec/_ipsec.in
-      sed -i 's/IPSEC_BINDIR=.*$/IPSEC_BINDIR=\"$SNAP\/usr\/bin\"/' src/ipsec/_ipsec.in
-      sed -i 's/IPSEC_SBINDIR=.*$/IPSEC_SBINDIR=\"$SNAP\/usr\/sbin\"/' src/ipsec/_ipsec.in
-      sed -i 's/IPSEC_CONFDIR=.*$/IPSEC_CONFDIR=\"$SNAP_DATA\/etc\"/' src/ipsec/_ipsec.in
-      sed -i 's/IPSEC_PIDDIR=.*$/IPSEC_PIDDIR=\"$SNAP_DATA\/var\/run\"/' src/ipsec/_ipsec.in
-      sed -i 's/IPSEC_DIR \"/\"\/snap\/strongswan-ogra\/current\/usr\/libexec\/ipsec/' src/starter/starter.c
-      sed -i 's/IPSEC_PIDDIR \"/\"\/var\/snap\/strongswan-ogra\/current\/var\/run/' src/starter/starter.c
-      sed -i 's/IPSEC_DIR\"/\"\/snap\/strongswan-ogra\/current\/usr\/libexec\/ipsec/' src/starter/starter.c
-      sed -i 's/IPSEC_PIDDIR\"/\"\/var\/snap\/strongswan-ogra\/current\/var\/run/' src/starter/starter.c
-      ./configure \
-      --enable-openssl \
-      --prefix=/usr \
-      --sysconfdir=/var/snap/strongswan-ogra/current/etc \
-      --with-plugindir=/snap/strongswan-ogra/current/usr/lib/ipsec/plugins \
-      --with-piddir=/var/snap/strongswan-ogra/current/var/run \
-      --runstatedir=/var/snap/strongswan-ogra/current/var/run
-    install: |
+  strongswan:
+    source: https://github.com/strongswan/strongswan.git
+    source-tag: 5.8.1
+    plugin: autotools
+    configflags:
+      - --enable-openssl
+      - --prefix=/usr
+      - --sysconfdir=/var/snap/strongswan-ogra/current/etc
+      - --with-plugindir=/snap/strongswan-ogra/current/usr/lib/ipsec/plugins
+      - --with-piddir=/tmp
+      - --runstatedir=/tmp
+    override-build: |
+      VER="$(head -1 NEWS|sed 's/strongswan-//')"
+      echo "setting version to: $VER"
+      snapcraftctl set-version $VER
+      git apply -v ../../../paths.patch
+      snapcraftctl build
       mv $SNAPCRAFT_PART_INSTALL/snap/strongswan-ogra/current/usr/lib/ipsec/plugins \
           $SNAPCRAFT_PART_INSTALL/usr/lib/ipsec/
-      rm -rf $SNAPCRAFT_PART_INSTALL/snap/strongswan-ogra
-      cp -a $SNAPCRAFT_PART_INSTALL/var/snap/strongswan-ogra/current/etc/* $SNAPCRAFT_PART_INSTALL/etc/
-      rm -rf $SNAPCRAFT_PART_INSTALL/var
+      mv $SNAPCRAFT_PART_INSTALL/var/snap/strongswan-ogra/current/etc/* $SNAPCRAFT_PART_INSTALL/etc/
+      rm -rf $SNAPCRAFT_PART_INSTALL/snap $SNAPCRAFT_PART_INSTALL/var/snap
     build-packages:
+      - bison
       - build-essential
-      - opensc
-      - libgmp-dev
-      - libssl-dev
+      - flex
+      - gperf
       - html2text
+      - iptables-dev
+      - libcap-dev
+      - libcurl4-openssl-dev
+      - libgcrypt20-dev
+      - libgmp3-dev
+      - libjson-c-dev
+      - libkrb5-dev
+      - libldap2-dev
+      - libldns-dev
+      - libmysqlclient-dev
+      - libnm-glib-vpn-dev
+      - libnm-util-dev
+      - libpcsclite-dev
+      - libpam0g-dev
+      - libsoup2.4-dev
+      - libsqlite3-dev
+      - libssl-dev
+      - libunbound-dev
+      - network-manager-dev
+      - m4
+      - opensc
       - wget
     stage-packages:
+      - iproute2
+      - iptables
+      - libatm1
+      - libcap2
+      - libcurl3
+      - libdbus-glib-1-2
+      - libgcrypt20
+      - libglib2.0-0
+      - libgpg-error0
       - libgmp10
+      - libjson-c3
+      - libldap-2.4-2
+      - libldns2
+      - libmysqlclient20
+      - libnm-glib-vpn1
+      - libnm-util2
+      - libpam0g
+      - libpcsclite1
+      - libsoup2.4-1
+      - libsqlite3-0
+      - libssl1.0.0
+      - libtspi1
+      - libunbound2
+      - libxml2
       - opensc
-  wrappers:
-    plugin: dump
-    organize:
-      wrappers: bin/

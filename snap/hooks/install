@@ -1,0 +1,3 @@
+#! /bin/sh
+
+[ -e "$SNAP_DATA/etc/strongswan.conf" ] || cp -a $SNAP/etc $SNAP_DATA/

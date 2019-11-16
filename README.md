@@ -2,19 +2,21 @@
 
 # strongswan Snap Package
 
-This is an initial (and still rather hackish) attempt to create a strongswan Snap package.
-This snap still requires the --devmode option when installing the snap.
+This is a strongswan Snap package built from https://github.com/strongswan/strongswan with a few changes to the paths to adapt it to the snap environment.
 
-## Testing
+## Install
 
 To install the snap from the store use:
 
-snap install --devmode --edge strongswan-ogra
+sudo snap install strongswan-ogra
 
-Configuration lives in /var/snap/strongswan-ogra/current/etc
-The charon service should automatically start after install and can be controlled with systemctl as:
+All configuration lives in /var/snap/strongswan-ogra/current/etc
+Follow the quickstart guilde at https://github.com/strongswan/strongswan to set up
+an initial VPN network.
 
-`snap.strongswan-ogra.strongswan.service`
+The charon service should automatically start after connecting the  network-control interface with:
+
+sudo snap connect strongswan-ogra:network-control
 
 Please send any feedback to the forum thread at:
 
