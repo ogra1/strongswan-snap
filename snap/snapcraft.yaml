@@ -83,6 +83,7 @@ parts:
       - bison
       - build-essential
       - flex
+      - gettext
       - gperf
       - html2text
       - iptables-dev
@@ -108,7 +109,6 @@ parts:
       - opensc
       - wget
     stage-packages:
-      - gettext
       - iproute2
       - iptables
       - libatm1
