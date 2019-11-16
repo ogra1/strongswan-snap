@@ -108,15 +108,13 @@ parts:
       - opensc
       - wget
     stage-packages:
-      - autoconf
-      - automake
+      - gettext
       - iproute2
       - iptables
       - libatm1
       - libcap2
       - libcurl3
       - libdbus-glib-1-2
-      - libevent-2.1-6
       - libgcrypt20
       - libglib2.0-0
       - libgpg-error0
@@ -127,7 +125,6 @@ parts:
       - libmysqlclient20
       - libnm-glib-vpn1
       - libnm-util2
-      - libtool
       - libpam0g
       - libpcsclite1
       - libsoup2.4-1
@@ -136,7 +133,4 @@ parts:
       - libtspi1
       - libunbound2
       - libxml2
-      - m4
       - opensc
-      - perl
-      - pkg-config
